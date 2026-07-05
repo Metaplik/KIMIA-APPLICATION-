@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Compteur Couple</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background-color: #f8f9fa; }
+        .container { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
+        .box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 150px; }
+        .counter { font-size: 3rem; display: block; margin: 15px 0; font-weight: bold; }
+        button { border: none; padding: 15px 20px; border-radius: 10px; cursor: pointer; color: white; font-weight: bold; width: 100%; font-size: 1rem; }
+        .rose { background-color: #ff85a2; }
+        .bleu { background-color: #5dade2; }
+    </style>
+</head>
+<body>
+
+    <h1>Compteur Partagé</h1>
+
+    <div class="container">
+        <div class="box">
+            <h2 id="name-rose">FEMME</h2>
+            <span id="score-rose" class="counter">0</span>
+            <button id="btn-rose" class="rose" onclick="updateScore('rose')">+ 1</button>
+        </div>
+
+        <div class="box">
+            <h2 id="name-bleu">HOMME</h2>
+            <span id="score-bleu" class="counter">0</span>
+            <button id="btn-bleu" class="bleu" onclick="updateScore('bleu')">+ 1</button>
+        </div>
+    </div>
+
+    <script>
+        const GIST_ID = "TON_GIST_ID";
+        const TOKEN = "TON_TOKEN";
+
+        window.onload = () => {
+            const nom = prompt("Entrez votre prénom :");
+            const sexe = prompt("Êtes-vous un HOMME ou une FEMME ?").toUpperCase();
+            
+            if (sexe === "FEMME") {
+                document.getElementById('name-rose').innerText = nom;
+            } else if (sexe === "HOMME") {
+                document.getElementById('name-bleu').innerText = nom;
+            }
+            loadScores();
+        };
+
+        async function loadScores() {
+            const response = await fetch(`https://api.github.com/gists/${GIST_ID}`);
+            const data = await response.json();
+            const content = JSON.parse(data.files['scores.json'].content);
+            document.getElementById('score-rose').innerText = content.rose;
+            document.getElementById('score-bleu').innerText = content.bleu;
+        }
+
+        async function updateScore(user) {
+            const response = await fetch(`https://api.github.com/gists/${GIST_ID}`);
+            const data = await response.json();
+            let scores = JSON.parse(data.files['scores.json'].content);
+            
+            scores[user]++;
+            
+            await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                method: 'PATCH',
+                headers: { "Authorization": `token ${TOKEN}`, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    files: { 'scores.json': { content: JSON.stringify(scores) } }
+                })
+            });
+            loadScores();
+        }
+
+        setInterval(loadScores, 5000);
+    </script>
+</body>
+</html>
