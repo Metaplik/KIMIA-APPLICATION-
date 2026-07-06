@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notre Bocal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF6EA;
+    --glass:rgba(255,255,255,0.30);
+    --glass-edge:rgba(255,255,255,0.75);
+    --rose:#FF6F91;
+    --rose-dark:#E14F73;
+    --bleu:#4FB6E8;
+    --bleu-dark:#2E8FC0;
+    --gold:#F2C14E;
+    --gold-dark:#C9922E;
+    --plum:#4A2E3D;
+    --plum-soft:#7A5C6E;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 20% 10%, #FFFDF8 0%, transparent 45%),
+      radial-gradient(circle at 85% 85%, #FFEFDC 0%, transparent 50%),
+      var(--cream);
+    font-family:'Quicksand', sans-serif;
+    color:var(--plum);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:28px 16px 80px;
+    overflow-x:hidden;
+  }
+
+  h1{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.7rem;
+    margin:0 0 4px;
+    letter-spacing:0.5px;
+    text-align:center;
+  }
+  .sous-titre{
+    font-size:0.95rem;
+    color:var(--plum-soft);
+    margin-bottom:28px;
+    text-align:center;
+  }
+
+  .scene{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    width:100%;
+    max-width:520px;
+    position:relative;
+  }
+
+  .cote{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    position:relative;
+  }
+
+  .nom{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1rem;
+    padding:6px 16px;
+    border-radius:999px;
+    background:var(--glass-edge);
+    box-shadow:0 2px 6px rgba(74,46,61,0.08);
+  }
+  .cote.rose .nom{ color:var(--rose-dark); }
+  .cote.bleu .nom{ color:var(--bleu-dark); }
+
+  .score{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:2.2rem;
+    line-height:1;
+  }
+  .cote.rose .score{ color:var(--rose-dark); }
+  .cote.bleu .score{ color:var(--bleu-dark); }
+
+  .montant-info{
+    font-size:0.75rem;
+    color:var(--plum-soft);
+  }
+
+  button{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.1rem;
+    border:none;
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    color:white;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,0.15), 0 8px 14px rgba(0,0,0,0.12);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  button:active{
+    transform:translateY(5px);
+    box-shadow:0 1px 0 rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.12);
+  }
+  button:disabled{ opacity:0.35; cursor:not-allowed; }
+  .btn-rose{ background:linear-gradient(180deg, var(--rose), var(--rose-dark)); }
+  .btn-bleu{ background:linear-gradient(180deg, var(--bleu), var(--bleu-dark)); }
+
+  .bulle-montant{
+    position:absolute;
+    top:-6px;
+    left:50%;
+    transform:translateX(-50%);
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    pointer-events:none;
+    animation:flotter .9s ease-out forwards;
+    white-space:nowrap;
+    z-index:6;
+  }
+  .cote.rose .bulle-montant{ color:var(--rose-dark); }
+  .cote.bleu .bulle-montant{ color:var(--bleu-dark); }
+
+  @keyframes flotter{
+    from{ transform:translate(-50%, 0); opacity:1; }
+    to{ transform:translate(-50%, -46px); opacity:0; }
+  }
+
+  /* ---- Le bocal ---- */
+  .bocal-wrap{
+    position:relative;
+    width:150px;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .couvercle{
+    width:96px;
+    height:20px;
+    border-radius:10px 10px 3px 3px;
+    background:linear-gradient(180deg, var(--gold), var(--gold-dark));
+    box-shadow:0 3px 5px rgba(0,0,0,0.15), inset 0 2px 2px rgba(255,255,255,0.5);
+    position:relative;
+    z-index:3;
+  }
+  .couvercle::after{
+    content:"";
+    position:absolute;
+    top:-6px; left:50%;
+    transform:translateX(-50%);
+    width:34px; height:10px;
+    border-radius:6px;
+    background:linear-gradient(180deg, var(--gold), var(--gold-dark));
+  }
+  .col{
+    width:82px;
+    height:12px;
+    background:rgba(255,255,255,0.28);
+    border-left:2px solid var(--glass-edge);
+    border-right:2px solid var(--glass-edge);
+  }
+
+  .bocal{
+    width:150px;
+    height:230px;
+    border-radius:20px 20px 46px 46px;
+    background:
+      linear-gradient(100deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.05) 60%, rgba(255,255,255,0.35) 100%),
+      var(--glass);
+    border:3px solid var(--glass-edge);
+    box-shadow:
+      inset -8px 0 16px rgba(255,255,255,0.4),
+      inset 8px 0 20px rgba(74,46,61,0.06),
+      0 10px 24px rgba(74,46,61,0.15);
+    position:relative;
+    overflow:hidden;
+    transition:transform .12s ease;
+  }
+  .bocal.rebond{ transform:scale(1.035); }
+
+  .brillance{
+    position:absolute;
+    top:10px; left:14px;
+    width:18px; height:70%;
+    border-radius:50%;
+    background:linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0));
+    filter:blur(1px);
+    z-index:2;
+    pointer-events:none;
+  }
+
+  .pieces-couche{ position:absolute; inset:0; }
+
+  .piece{
+    position:absolute;
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255,255,255,0.6);
+    animation:tomber .38s cubic-bezier(.34,1.4,.64,1) both;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Fredoka', sans-serif;
+    font-size:9px;
+    font-weight:700;
+    color:rgba(255,255,255,0.85);
+  }
+  .piece.rose{ background:radial-gradient(circle at 35% 30%, #FFC1D2, var(--rose) 70%); }
+  .piece.bleu{ background:radial-gradient(circle at 35% 30%, #C7ECFB, var(--bleu) 70%); }
+
+  @keyframes tomber{
+    from{ transform:translateY(-160px) rotate(-30deg); opacity:0; }
+    to{ transform:translateY(0) rotate(0); opacity:1; }
+  }
+
+  .total{
+    margin-top:26px;
+    font-size:0.9rem;
+    color:var(--plum-soft);
+    text-align:center;
+  }
+
+  /* ---- Panneau d'attache (note + photo) ---- */
+  .panneau-attache{
+    position:fixed;
+    left:16px; right:16px; bottom:16px;
+    max-width:488px;
+    margin:0 auto;
+    background:white;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(74,46,61,0.25);
+    padding:16px;
+    z-index:20;
+  }
+  .panneau-attache.cache{ display:none; }
+  .panneau-entete{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  .panneau-entete .fermer{
+    margin-left:auto;
+    background:none;
+    box-shadow:none;
+    width:28px; height:28px;
+    font-size:1rem;
+    color:var(--plum-soft);
+  }
+  .panneau-attache textarea{
+    width:100%;
+    min-height:56px;
+    border-radius:12px;
+    border:2px solid var(--glass-edge);
+    padding:10px;
+    font-family:'Quicksand', sans-serif;
+    font-size:0.95rem;
+    resize:vertical;
+    outline:none;
+  }
+  .panneau-attache textarea:focus{ border-color:var(--gold-dark); }
+  .panneau-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+  }
+  .bouton-photo{
+    width:auto; height:auto;
+    border-radius:12px;
+    padding:8px 14px;
+    font-size:0.85rem;
+    background:var(--cream);
+    color:var(--plum);
+    box-shadow:none;
+    border:2px solid var(--glass-edge);
+  }
+  .bouton-enregistrer{
+    width:auto; height:auto;
+    border-radius:12px;
+    padding:8px 18px;
+    font-size:0.9rem;
+    background:linear-gradient(180deg, var(--gold), var(--gold-dark));
+    margin-left:auto;
+  }
+  #apercu-photo{
+    max-width:60px;
+    max-height:60px;
+    border-radius:8px;
+    display:none;
+    object-fit:cover;
+  }
+
+  /* ---- Statistiques ---- */
+  .stats{
+    margin-top:40px;
+    width:100%;
+    max-width:520px;
+  }
+  .stats h3{
+    font-family:'Fredoka', sans-serif;
+    font-size:1.1rem;
+    margin:0 0 14px;
+    text-align:center;
+  }
+  .carte-stat{
+    background:var(--glass-edge);
+    border-radius:20px;
+    padding:18px;
+    margin-bottom:16px;
+    box-shadow:0 4px 12px rgba(74,46,61,0.08);
+  }
+  .carte-stat svg{ width:100%; height:auto; display:block; }
+  .legende{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    margin-top:8px;
+    font-size:0.8rem;
+    color:var(--plum-soft);
+  }
+  .legende span{ display:inline-flex; align-items:center; gap:5px; }
+  .pastille{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .pastille.rose{ background:var(--rose); }
+  .pastille.bleu{ background:var(--bleu); }
+
+  .lien-journal{
+    display:block;
+    text-align:center;
+    font-size:0.85rem;
+    color:var(--plum-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    margin-top:6px;
+  }
+
+  .journal-liste{ margin-top:10px; }
+  .journal-liste.cache{ display:none; }
+  .entree-journal{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    padding:10px 0;
+    border-top:1px solid rgba(74,46,61,0.08);
+  }
+  .entree-journal:first-child{ border-top:none; }
+  .entree-journal img{
+    width:44px; height:44px;
+    border-radius:8px;
+    object-fit:cover;
+    flex-shrink:0;
+  }
+  .entree-texte{ flex:1; }
+  .entree-ligne1{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+  }
+  .entree-ligne1.rose{ color:var(--rose-dark); }
+  .entree-ligne1.bleu{ color:var(--bleu-dark); }
+  .entree-date{ font-size:0.7rem; color:var(--plum-soft); }
+  .entree-note{ font-size:0.85rem; margin-top:2px; }
+
+  /* ---- Écran d'accueil ---- */
+  .accueil{
+    position:fixed;
+    inset:0;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    padding:24px;
+    z-index:10;
+    text-align:center;
+    overflow-y:auto;
+  }
+  .accueil h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:1.4rem;
+    margin:0;
+  }
+  .accueil input[type="text"]{
+    font-family:'Quicksand', sans-serif;
+    font-size:1.1rem;
+    padding:12px 18px;
+    border-radius:14px;
+    border:2px solid var(--glass-edge);
+    background:white;
+    width:220px;
+    text-align:center;
+    outline:none;
+  }
+  .accueil input:focus{ border-color:var(--gold-dark); }
+
+  .montant-zone{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  .montant-label{ font-size:0.85rem; color:var(--plum-soft); }
+  .montant-champ-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:white;
+    border:2px solid var(--glass-edge);
+    border-radius:14px;
+    padding:6px 14px;
+  }
+  .montant-champ-wrap:focus-within{ border-color:var(--gold-dark); }
+  .montant-symbole{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:1.3rem;
+    color:var(--gold-dark);
+  }
+  #champ-montant{
+    font-family:'Fredoka', sans-serif;
+    font-size:1.3rem;
+    border:none;
+    width:80px;
+    text-align:center;
+    outline:none;
+    background:transparent;
+  }
+
+  .choix-cote{ display:flex; gap:16px; }
+  .choix-cote button{
+    width:auto; height:auto;
+    border-radius:16px;
+    padding:14px 22px;
+    font-size:1rem;
+    box-shadow:0 4px 0 rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.1);
+  }
+
+  .changer-lien{
+    position:fixed;
+    bottom:10px; right:14px;
+    font-size:0.75rem;
+    color:var(--plum-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    z-index:5;
+  }
+  #reset-scores{ right:auto; left:14px; }
+
+  .cache{ display:none !important; }
+
+  @media (max-width:400px){
+    .scene{ gap:8px; }
+    .bocal-wrap{ width:118px; }
+    .bocal{ width:118px; height:190px; }
+    .couvercle{ width:76px; }
+    .col{ width:64px; }
+    button{ width:54px; height:54px; font-size:0.95rem; }
+    .score{ font-size:1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="accueil" id="accueil">
+    <h2>Avant de commencer</h2>
+    <input type="text" id="champ-couple" placeholder="Nom de votre couple" maxlength="24">
+    <input type="text" id="champ-nom" placeholder="Ton prénom" maxlength="20">
+
+    <div class="montant-zone">
+      <div class="montant-label">Valeur d'une pièce pour toi</div>
+      <div class="montant-champ-wrap">
+        <span class="montant-symbole">€</span>
+        <input type="number" id="champ-montant" min="1" step="1" value="1">
+      </div>
+    </div>
+
+    <div class="choix-cote">
+      <button class="btn-rose" id="choix-rose" disabled>Côté Femme 🌸</button>
+      <button class="btn-bleu" id="choix-bleu" disabled>Côté Homme 💧</button>
+    </div>
+    <div id="erreur-accueil" style="color:var(--rose-dark); font-size:0.85rem; max-width:260px; display:none;"></div>
+    <div style="font-size:0.75rem; color:var(--plum-soft); max-width:260px;">La première personne choisit un nom de couple, l'autre retape exactement le même pour se lier.</div>
+  </div>
+
+  <div class="cache" id="contenu-principal">
+
+  <h1>Notre Bocal</h1>
+  <div class="sous-titre" id="sous-titre">Chaque bouton ajoute une pièce de sa couleur</div>
+
+  <div class="scene">
+    <div class="cote rose">
+      <div class="nom" id="name-rose">FEMME</div>
+      <div class="score" id="score-rose">0 €</div>
+      <div class="montant-info" id="montant-rose"></div>
+      <button class="btn-rose" id="btn-rose" onclick="updateScore('rose')" aria-label="Ajouter une pièce côté femme">+</button>
+    </div>
+
+    <div class="bocal-wrap">
+      <div class="couvercle"></div>
+      <div class="col"></div>
+      <div class="bocal" id="bocal">
+        <div class="brillance"></div>
+        <div class="pieces-couche" id="pieces-couche"></div>
+      </div>
+    </div>
+
+    <div class="cote bleu">
+      <div class="nom" id="name-bleu">HOMME</div>
+      <div class="score" id="score-bleu">0 €</div>
+      <div class="montant-info" id="montant-bleu"></div>
+      <button class="btn-bleu" id="btn-bleu" onclick="updateScore('bleu')" aria-label="Ajouter une pièce côté homme">+</button>
+    </div>
+  </div>
+
+  <div class="total" id="total">Bocal en cours de remplissage…</div>
+
+  <div class="stats">
+    <h3>Comparaison des totaux</h3>
+    <div class="carte-stat">
+      <svg id="graphique-barres" viewBox="0 0 300 180"></svg>
+      <div class="legende">
+        <span><span class="pastille rose"></span><span id="legende-nom-rose">Femme</span></span>
+        <span><span class="pastille bleu"></span><span id="legende-nom-bleu">Homme</span></span>
+      </div>
+    </div>
+
+    <h3>Évolution dans le temps</h3>
+    <div class="carte-stat">
+      <svg id="graphique-courbe" viewBox="0 0 300 150"></svg>
+    </div>
+
+    <div class="lien-journal" id="lien-journal">Voir le journal des pièces</div>
+    <div class="journal-liste cache" id="journal-liste"></div>
+  </div>
+
+  </div>
+
+  <div class="panneau-attache cache" id="panneau-attache">
+    <div class="panneau-entete">
+      <span>📎 Ajouter une note à cette pièce</span>
+      <button class="fermer" id="panneau-fermer" type="button">✕</button>
+    </div>
+    <textarea id="panneau-note" placeholder="Pourquoi cette pièce ? (optionnel)"></textarea>
+    <div class="panneau-actions">
+      <label class="bouton-photo" style="cursor:pointer;">
+        📷 Photo
+        <input type="file" id="panneau-photo" accept="image/*" style="display:none;">
+      </label>
+      <img id="apercu-photo" alt="">
+      <button class="bouton-enregistrer" id="panneau-enregistrer" type="button">Enregistrer</button>
+    </div>
+  </div>
+
+  <div class="changer-lien" id="changer-lien">Ce n'est pas moi ? Réinitialiser</div>
+  <div class="changer-lien" id="reset-scores">Remettre le bocal à zéro</div>
+
+<script>
+  const DB_URL = "https://compteur-couple-default-rtdb.europe-west1.firebasedatabase.app";
+  const MAX_PIECES_AFFICHEES = 90;
+
+  let audioCtx = null;
+  let monCote = null;
+  let coupleCle = null;
+  let montantMoi = 1;
+  let journal = [];
+  let idEnAttache = null;
+  let photoEnAttache = null;
+
+  function cleCouple(texte) {
+    return texte.trim().toLowerCase()
+      .replace(/[.#$\[\]\/]/g, '')
+      .replace(/\s+/g, '-');
+  }
+
+  window.onload = () => {
+    const coupleEnregistre = localStorage.getItem('compteur_couple');
+    const nomEnregistre = localStorage.getItem('compteur_nom');
+    const coteEnregistre = localStorage.getItem('compteur_cote');
+    const montantEnregistre = localStorage.getItem('compteur_montant');
+
+    if (coupleEnregistre && nomEnregistre && coteEnregistre) {
+      demarrer(nomEnregistre, coteEnregistre, coupleEnregistre, parseFloat(montantEnregistre) || 1);
+    } else {
+      initAccueil();
+    }
+
+    document.getElementById('changer-lien').onclick = async () => {
+      const sur = confirm("Réinitialiser entièrement le couple \"" + coupleCle + "\" ? Les deux noms, les deux totaux et le journal seront effacés, y compris ceux de votre partenaire si il/elle n'a pas réinitialisé de son côté.");
+      if (!sur) return;
+      try {
+        await fetch(`${DB_URL}/couples/${coupleCle}.json`, { method: 'DELETE' });
+      } catch (e) {}
+      localStorage.removeItem('compteur_couple');
+      localStorage.removeItem('compteur_nom');
+      localStorage.removeItem('compteur_cote');
+      localStorage.removeItem('compteur_montant');
+      location.reload();
+    };
+
+    document.getElementById('reset-scores').onclick = async () => {
+      const sur = confirm("Remettre le bocal à zéro (totaux et journal) ? Cette action est irréversible.");
+      if (!sur) return;
+      try {
+        await fetch(`${DB_URL}/couples/${coupleCle}/journal.json`, { method: 'DELETE' });
+        rechargerJournal();
+      } catch (e) {
+        alert("La remise à zéro a échoué, vérifie ta connexion.");
+      }
+    };
+
+    document.getElementById('panneau-fermer').onclick = () => fermerPanneau(false);
+    document.getElementById('panneau-enregistrer').onclick = () => fermerPanneau(true);
+    document.getElementById('panneau-photo').onchange = gererChoixPhoto;
+    document.getElementById('lien-journal').onclick = toggleJournal;
+  };
+
+  function initAccueil() {
+    const champCouple = document.getElementById('champ-couple');
+    const champNom = document.getElementById('champ-nom');
+    const champMontant = document.getElementById('champ-montant');
+    const btnChoixRose = document.getElementById('choix-rose');
+    const btnChoixBleu = document.getElementById('choix-bleu');
+    const erreur = document.getElementById('erreur-accueil');
+
+    const majBoutons = () => {
+      const ok = champCouple.value.trim().length > 0 && champNom.value.trim().length > 0;
+      btnChoixRose.disabled = !ok;
+      btnChoixBleu.disabled = !ok;
+    };
+    champCouple.addEventListener('input', majBoutons);
+    champNom.addEventListener('input', majBoutons);
+
+    btnChoixRose.onclick = () => rejoindre('rose');
+    btnChoixBleu.onclick = () => rejoindre('bleu');
+
+    async function rejoindre(cote) {
+      const cle = cleCouple(champCouple.value);
+      const nom = champNom.value.trim();
+      const montant = Math.max(1, parseFloat(champMontant.value) || 1);
+      if (!cle || !nom) return;
+
+      erreur.style.display = 'none';
+      btnChoixRose.disabled = true;
+      btnChoixBleu.disabled = true;
+
+      try {
+        const resp = await fetch(`${DB_URL}/couples/${cle}/noms/${cote}.json`);
+        const occupantExistant = await resp.json();
+
+        if (occupantExistant) {
+          erreur.textContent = "Ce côté est déjà pris pour ce nom de couple. Vérifiez l'orthographe avec votre partenaire, ou choisissez un autre nom.";
+          erreur.style.display = 'block';
+          majBoutons();
+          return;
+        }
+
+        await fetch(`${DB_URL}/couples/${cle}/noms/${cote}.json`, {
+          method: 'PUT', headers: { "Content-Type": "application/json" }, body: JSON.stringify(nom)
+        });
+        await fetch(`${DB_URL}/couples/${cle}/montants/${cote}.json`, {
+          method: 'PUT', headers: { "Content-Type": "application/json" }, body: JSON.stringify(montant)
+        });
+
+        localStorage.setItem('compteur_couple', cle);
+        localStorage.setItem('compteur_nom', nom);
+        localStorage.setItem('compteur_cote', cote);
+        localStorage.setItem('compteur_montant', montant);
+
+        demarrer(nom, cote, cle, montant);
+      } catch (e) {
+        erreur.textContent = "Connexion impossible, réessayez.";
+        erreur.style.display = 'block';
+        majBoutons();
+      }
+    }
+  }
+
+  function demarrer(nom, cote, cle, montant) {
+    monCote = cote;
+    coupleCle = cle;
+    montantMoi = montant;
+
+    if (cote === 'rose') document.getElementById('name-rose').innerText = nom;
+    else document.getElementById('name-bleu').innerText = nom;
+
+    document.getElementById('sous-titre').innerText = `Couple : ${cle}`;
+    document.getElementById('accueil').classList.add('cache');
+    document.getElementById('contenu-principal').classList.remove('cache');
+
+    verrouillerBoutons();
+    chargerNomsExistants();
+    rechargerJournal();
+  }
+
+  function verrouillerBoutons() {
+    document.getElementById('btn-rose').disabled = (monCote !== 'rose');
+    document.getElementById('btn-bleu').disabled = (monCote !== 'bleu');
+    document.getElementById('montant-rose').innerText = monCote === 'rose' ? `+${montantMoi}€ par pièce` : '';
+    document.getElementById('montant-bleu').innerText = monCote === 'bleu' ? `+${montantMoi}€ par pièce` : '';
+  }
+
+  async function chargerNomsExistants() {
+    try {
+      const resp = await fetch(`${DB_URL}/couples/${coupleCle}/noms.json`);
+      const noms = await resp.json();
+      if (noms && noms.rose) {
+        document.getElementById('name-rose').innerText = noms.rose;
+        document.getElementById('legende-nom-rose').innerText = noms.rose;
+      }
+      if (noms && noms.bleu) {
+        document.getElementById('name-bleu').innerText = noms.bleu;
+        document.getElementById('legende-nom-bleu').innerText = noms.bleu;
+      }
+    } catch (e) {}
+  }
+
+  async function rechargerJournal() {
+    try {
+      const resp = await fetch(`${DB_URL}/couples/${coupleCle}/journal.json`);
+      const data = await resp.json();
+      journal = [];
+      if (data) {
+        Object.keys(data).forEach(id => {
+          journal.push(Object.assign({ id }, data[id]));
+        });
+      }
+      journal.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+      render();
+    } catch (e) {
+      console.error("Erreur de chargement :", e);
+    }
+  }
+
+  async function updateScore(cote) {
+    if (monCote && cote !== monCote) return;
+
+    const entree = { cote, montant: montantMoi, ts: Date.now() };
+
+    jouerSon(cote);
+    afficherBulle(cote);
+    animerBocal();
+
+    try {
+      const resp = await fetch(`${DB_URL}/couples/${coupleCle}/journal.json`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(entree)
+      });
+      const data = await resp.json();
+      entree.id = data.name;
+      journal.push(entree);
+      render();
+      ouvrirPanneau(entree.id);
+    } catch (e) {
+      console.error("Erreur d'enregistrement :", e);
+    }
+  }
+
+  function afficherBulle(cote) {
+    const conteneur = document.querySelector('.cote.' + cote);
+    const bulle = document.createElement('div');
+    bulle.className = 'bulle-montant';
+    bulle.innerText = '+' + montantMoi + '€';
+    conteneur.appendChild(bulle);
+    setTimeout(() => bulle.remove(), 900);
+  }
+
+  function animerBocal() {
+    const bocal = document.getElementById('bocal');
+    bocal.classList.add('rebond');
+    setTimeout(() => bocal.classList.remove('rebond'), 140);
+  }
+
+  function render() {
+    const totalRose = journal.filter(e => e.cote === 'rose').reduce((s, e) => s + (e.montant || 0), 0);
+    const totalBleu = journal.filter(e => e.cote === 'bleu').reduce((s, e) => s + (e.montant || 0), 0);
+
+    document.getElementById('score-rose').innerText = totalRose + ' €';
+    document.getElementById('score-bleu').innerText = totalBleu + ' €';
+
+    const total = totalRose + totalBleu;
+    document.getElementById('total').innerText =
+      total === 0 ? "Le bocal n'attend que vous…" : `${total} € dans le bocal (${journal.length} pièce${journal.length > 1 ? 's' : ''})`;
+
+    dessinerPieces();
+    dessinerGraphiqueBarres(totalRose, totalBleu);
+    dessinerGraphiqueCourbe();
+    if (!document.getElementById('journal-liste').classList.contains('cache')) {
+      dessinerJournal();
+    }
+  }
+
+  function dessinerPieces() {
+    const couche = document.getElementById('pieces-couche');
+    couche.innerHTML = '';
+
+    const total = journal.length;
+    if (total === 0) return;
+
+    const nbAffiche = Math.min(total, MAX_PIECES_AFFICHEES);
+    const depart = total - nbAffiche;
+    const parRangee = 6;
+    const decalageX = 10;
+
+    for (let i = 0; i < nbAffiche; i++) {
+      const e = journal[depart + i];
+      const rangee = Math.floor(i / parRangee);
+      const col = i % parRangee;
+      const decalageRangee = (rangee % 2) * 12;
+
+      const piece = document.createElement('div');
+      piece.className = 'piece ' + e.cote;
+      piece.innerText = '€';
+      piece.style.left = (decalageX + col * 18 + decalageRangee) + 'px';
+      piece.style.bottom = (4 + rangee * 15) + 'px';
+      couche.appendChild(piece);
+    }
+  }
+
+  function dessinerGraphiqueBarres(totalRose, totalBleu) {
+    const svg = document.getElementById('graphique-barres');
+    const max = Math.max(totalRose, totalBleu, 1);
+    const hMaxPx = 120;
+    const hRose = Math.round((totalRose / max) * hMaxPx);
+    const hBleu = Math.round((totalBleu / max) * hMaxPx);
+
+    svg.innerHTML = `
+      <line x1="20" y1="150" x2="280" y2="150" stroke="#4A2E3D" stroke-opacity="0.15" stroke-width="1"/>
+      <rect x="70" y="${150 - hRose}" width="60" height="${hRose}" rx="10" fill="#FF6F91"/>
+      <text x="100" y="${150 - hRose - 10}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="14" fill="#E14F73">${totalRose}€</text>
+      <rect x="170" y="${150 - hBleu}" width="60" height="${hBleu}" rx="10" fill="#4FB6E8"/>
+      <text x="200" y="${150 - hBleu - 10}" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="14" fill="#2E8FC0">${totalBleu}€</text>
+    `;
+  }
+
+  function dessinerGraphiqueCourbe() {
+    const svg = document.getElementById('graphique-courbe');
+    if (journal.length === 0) {
+      svg.innerHTML = `<text x="150" y="75" text-anchor="middle" font-family="Quicksand" font-size="12" fill="#7A5C6E">Pas encore de données</text>`;
+      return;
+    }
+
+    const parJour = {};
+    journal.forEach(e => {
+      const jour = new Date(e.ts).toISOString().slice(0, 10);
+      if (!parJour[jour]) parJour[jour] = { rose: 0, bleu: 0 };
+      parJour[jour][e.cote] += e.montant || 0;
+    });
+
+    const jours = Object.keys(parJour).sort();
+    let cumulRose = 0, cumulBleu = 0;
+    const pointsRose = [], pointsBleu = [];
+    jours.forEach(j => {
+      cumulRose += parJour[j].rose;
+      cumulBleu += parJour[j].bleu;
+      pointsRose.push(cumulRose);
+      pointsBleu.push(cumulBleu);
+    });
+
+    const max = Math.max(...pointsRose, ...pointsBleu, 1);
+    const largeur = 260, gauche = 20, haut = 20, hauteurZone = 100;
+    const pas = jours.length > 1 ? largeur / (jours.length - 1) : 0;
+
+    const construireChemin = (points) => points.map((v, i) => {
+      const x = gauche + i * pas;
+      const y = haut + hauteurZone - (v / max) * hauteurZone;
+      return (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+
+    svg.innerHTML = `
+      <line x1="20" y1="120" x2="280" y2="120" stroke="#4A2E3D" stroke-opacity="0.15" stroke-width="1"/>
+      <path d="${construireChemin(pointsRose)}" fill="none" stroke="#E14F73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="${construireChemin(pointsBleu)}" fill="none" stroke="#2E8FC0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    `;
+  }
+
+  function toggleJournal() {
+    const liste = document.getElementById('journal-liste');
+    liste.classList.toggle('cache');
+    const lien = document.getElementById('lien-journal');
+    if (!liste.classList.contains('cache')) {
+      lien.innerText = 'Masquer le journal';
+      dessinerJournal();
+    } else {
+      lien.innerText = 'Voir le journal des pièces';
+    }
+  }
+
+  function dessinerJournal() {
+    const liste = document.getElementById('journal-liste');
+    liste.innerHTML = '';
+    const nomRose = document.getElementById('name-rose').innerText;
+    const nomBleu = document.getElementById('name-bleu').innerText;
+
+    [...journal].reverse().forEach(e => {
+      const div = document.createElement('div');
+      div.className = 'entree-journal';
+
+      const date = new Date(e.ts);
+      const dateTexte = date.toLocaleDateString('fr-FR') + ' à ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      const nom = e.cote === 'rose' ? nomRose : nomBleu;
+
+      let html = '';
+      if (e.photo) html += `<img src="${e.photo}" alt="photo jointe">`;
+      html += `<div class="entree-texte">
+        <div class="entree-ligne1 ${e.cote}">${nom} — +${e.montant}€</div>
+        <div class="entree-date">${dateTexte}</div>
+        ${e.note ? `<div class="entree-note">${e.note.replace(/</g, '&lt;')}</div>` : ''}
+      </div>`;
+      div.innerHTML = html;
+      liste.appendChild(div);
+    });
+  }
+
+  function ouvrirPanneau(id) {
+    idEnAttache = id;
+    photoEnAttache = null;
+    document.getElementById('panneau-note').value = '';
+    const apercu = document.getElementById('apercu-photo');
+    apercu.style.display = 'none';
+    apercu.src = '';
+    document.getElementById('panneau-attache').classList.remove('cache');
+  }
+
+  function gererChoixPhoto(evt) {
+    const fichier = evt.target.files[0];
+    if (!fichier) return;
+
+    const lecteur = new FileReader();
+    lecteur.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const tailleMax = 420;
+        let { width, height } = img;
+        if (width > tailleMax || height > tailleMax) {
+          if (width > height) { height = Math.round(height * tailleMax / width); width = tailleMax; }
+          else { width = Math.round(width * tailleMax / height); height = tailleMax; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        photoEnAttache = canvas.toDataURL('image/jpeg', 0.6);
+
+        const apercu = document.getElementById('apercu-photo');
+        apercu.src = photoEnAttache;
+        apercu.style.display = 'block';
+      };
+      img.src = e.target.result;
+    };
+    lecteur.readAsDataURL(fichier);
+  }
+
+  async function fermerPanneau(enregistrer) {
+    const note = document.getElementById('panneau-note').value.trim();
+
+    if (enregistrer && idEnAttache && (note || photoEnAttache)) {
+      try {
+        const corps = {};
+        if (note) corps.note = note;
+        if (photoEnAttache) corps.photo = photoEnAttache;
+        await fetch(`${DB_URL}/couples/${coupleCle}/journal/${idEnAttache}.json`, {
+          method: 'PATCH',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(corps)
+        });
+        rechargerJournal();
+      } catch (e) {
+        console.error("Erreur d'enregistrement de la note :", e);
+      }
+    }
+
+    idEnAttache = null;
+    photoEnAttache = null;
+    document.getElementById('panneau-attache').classList.add('cache');
+  }
+
+  function jouerSon(cote) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const base = cote === 'rose' ? 880 : 660;
+
+      [0, 0.07].forEach((delai, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = base + i * 220;
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime + delai);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delai + 0.18);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + delai);
+        osc.stop(audioCtx.currentTime + delai + 0.2);
+      });
+    } catch (e) {}
+  }
+
+  setInterval(() => { if (coupleCle && !idEnAttache) rechargerJournal(); }, 5000);
+</script>
+</body>
+</html>
