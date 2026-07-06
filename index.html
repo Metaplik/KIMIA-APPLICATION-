@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notre Bocal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF6EA;
+    --cream-dark:#F5E9D6;
+    --glass:rgba(255,255,255,0.30);
+    --glass-edge:rgba(255,255,255,0.75);
+    --rose:#FF6F91;
+    --rose-dark:#E14F73;
+    --bleu:#4FB6E8;
+    --bleu-dark:#2E8FC0;
+    --gold:#F2C14E;
+    --gold-dark:#C9922E;
+    --plum:#4A2E3D;
+    --plum-soft:#7A5C6E;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 20% 10%, #FFFDF8 0%, transparent 45%),
+      radial-gradient(circle at 85% 85%, #FFEFDC 0%, transparent 50%),
+      var(--cream);
+    font-family:'Quicksand', sans-serif;
+    color:var(--plum);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:28px 16px 60px;
+    overflow-x:hidden;
+  }
+
+  h1{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.7rem;
+    margin:0 0 4px;
+    letter-spacing:0.5px;
+    text-align:center;
+  }
+  .sous-titre{
+    font-size:0.95rem;
+    color:var(--plum-soft);
+    margin-bottom:28px;
+    text-align:center;
+  }
+
+  .scene{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    width:100%;
+    max-width:520px;
+  }
+
+  .cote{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+
+  .nom{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1rem;
+    padding:6px 16px;
+    border-radius:999px;
+    background:var(--glass-edge);
+    box-shadow:0 2px 6px rgba(74,46,61,0.08);
+  }
+  .cote.rose .nom{ color:var(--rose-dark); }
+  .cote.bleu .nom{ color:var(--bleu-dark); }
+
+  .score{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:2.6rem;
+    line-height:1;
+  }
+  .cote.rose .score{ color:var(--rose-dark); }
+  .cote.bleu .score{ color:var(--bleu-dark); }
+
+  button{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.4rem;
+    border:none;
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    color:white;
+    cursor:pointer;
+    box-shadow:0 6px 0 rgba(0,0,0,0.15), 0 8px 14px rgba(0,0,0,0.12);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  button:active{
+    transform:translateY(5px);
+    box-shadow:0 1px 0 rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.12);
+  }
+  .btn-rose{ background:linear-gradient(180deg, var(--rose), var(--rose-dark)); }
+  .btn-bleu{ background:linear-gradient(180deg, var(--bleu), var(--bleu-dark)); }
+
+  /* ---- Le bocal ---- */
+  .bocal-wrap{
+    position:relative;
+    width:150px;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .couvercle{
+    width:96px;
+    height:20px;
+    border-radius:10px 10px 3px 3px;
+    background:linear-gradient(180deg, var(--gold), var(--gold-dark));
+    box-shadow:0 3px 5px rgba(0,0,0,0.15), inset 0 2px 2px rgba(255,255,255,0.5);
+    position:relative;
+    z-index:3;
+  }
+  .couvercle::after{
+    content:"";
+    position:absolute;
+    top:-6px; left:50%;
+    transform:translateX(-50%);
+    width:34px; height:10px;
+    border-radius:6px;
+    background:linear-gradient(180deg, var(--gold), var(--gold-dark));
+  }
+  .col{
+    width:82px;
+    height:12px;
+    background:rgba(255,255,255,0.28);
+    border-left:2px solid var(--glass-edge);
+    border-right:2px solid var(--glass-edge);
+  }
+
+  .bocal{
+    width:150px;
+    height:230px;
+    border-radius:20px 20px 46px 46px;
+    background:
+      linear-gradient(100deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.05) 60%, rgba(255,255,255,0.35) 100%),
+      var(--glass);
+    border:3px solid var(--glass-edge);
+    box-shadow:
+      inset -8px 0 16px rgba(255,255,255,0.4),
+      inset 8px 0 20px rgba(74,46,61,0.06),
+      0 10px 24px rgba(74,46,61,0.15);
+    position:relative;
+    overflow:hidden;
+    transition:transform .12s ease;
+  }
+  .bocal.rebond{ transform:scale(1.035); }
+
+  .brillance{
+    position:absolute;
+    top:10px; left:14px;
+    width:18px; height:70%;
+    border-radius:50%;
+    background:linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0));
+    filter:blur(1px);
+    z-index:2;
+    pointer-events:none;
+  }
+
+  .pieces-couche{
+    position:absolute;
+    inset:0;
+  }
+
+  .piece{
+    position:absolute;
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 2px rgba(255,255,255,0.6);
+    animation:tomber .38s cubic-bezier(.34,1.4,.64,1) both;
+  }
+  .piece.rose{ background:radial-gradient(circle at 35% 30%, #FFC1D2, var(--rose) 70%); }
+  .piece.bleu{ background:radial-gradient(circle at 35% 30%, #C7ECFB, var(--bleu) 70%); }
+
+  @keyframes tomber{
+    from{ transform:translateY(-160px) rotate(-30deg); opacity:0; }
+    to{ transform:translateY(0) rotate(0); opacity:1; }
+  }
+
+  .total{
+    margin-top:26px;
+    font-size:0.9rem;
+    color:var(--plum-soft);
+    text-align:center;
+  }
+
+  .accueil{
+    position:fixed;
+    inset:0;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+    padding:24px;
+    z-index:10;
+    text-align:center;
+  }
+  .accueil h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:1.4rem;
+    margin:0;
+  }
+  .accueil input{
+    font-family:'Quicksand', sans-serif;
+    font-size:1.1rem;
+    padding:12px 18px;
+    border-radius:14px;
+    border:2px solid var(--glass-edge);
+    background:white;
+    width:220px;
+    text-align:center;
+    outline:none;
+  }
+  .accueil input:focus{ border-color:var(--gold-dark); }
+
+  .choix-cote{ display:flex; gap:16px; }
+  .choix-cote button{
+    width:auto; height:auto;
+    border-radius:16px;
+    padding:14px 22px;
+    font-size:1rem;
+    box-shadow:0 4px 0 rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.1);
+  }
+  .choix-cote button:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .changer-lien{
+    position:fixed;
+    bottom:10px; right:14px;
+    font-size:0.75rem;
+    color:var(--plum-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    z-index:5;
+  }
+
+  .cache{ display:none !important; }
+
+  @media (max-width:400px){
+    .scene{ gap:8px; }
+    .bocal-wrap{ width:118px; }
+    .bocal{ width:118px; height:190px; }
+    .couvercle{ width:76px; }
+    .col{ width:64px; }
+    button{ width:54px; height:54px; font-size:1.2rem; }
+    .score{ font-size:2rem; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="accueil" id="accueil">
+    <h2>Avant de commencer</h2>
+    <input type="text" id="champ-couple" placeholder="Nom de votre couple" maxlength="24">
+    <input type="text" id="champ-nom" placeholder="Ton prénom" maxlength="20">
+    <div class="choix-cote">
+      <button class="btn-rose" id="choix-rose" disabled>Côté Femme 🌸</button>
+      <button class="btn-bleu" id="choix-bleu" disabled>Côté Homme 💧</button>
+    </div>
+    <div id="erreur-accueil" style="color:var(--rose-dark); font-size:0.85rem; max-width:260px; display:none;"></div>
+    <div style="font-size:0.75rem; color:var(--plum-soft); max-width:260px;">La première personne choisit un nom de couple, l'autre retape exactement le même pour se lier.</div>
+  </div>
+
+  <div class="cache" id="contenu-principal">
+
+  <h1>Notre Bocal</h1>
+  <div class="sous-titre" id="sous-titre">Chaque bouton ajoute une pièce de sa couleur</div>
+
+  <div class="scene">
+    <div class="cote rose">
+      <div class="nom" id="name-rose">FEMME</div>
+      <div class="score" id="score-rose">0</div>
+      <button class="btn-rose" onclick="updateScore('rose')" aria-label="Ajouter un point côté femme">+1</button>
+    </div>
+
+    <div class="bocal-wrap">
+      <div class="couvercle"></div>
+      <div class="col"></div>
+      <div class="bocal" id="bocal">
+        <div class="brillance"></div>
+        <div class="pieces-couche" id="pieces-couche"></div>
+      </div>
+    </div>
+
+    <div class="cote bleu">
+      <div class="nom" id="name-bleu">HOMME</div>
+      <div class="score" id="score-bleu">0</div>
+      <button class="btn-bleu" onclick="updateScore('bleu')" aria-label="Ajouter un point côté homme">+1</button>
+    </div>
+  </div>
+
+  <div class="total" id="total">Bocal en cours de remplissage…</div>
+
+  </div>
+
+  <div class="changer-lien" id="changer-lien">Ce n'est pas moi ? Réinitialiser</div>
+  <div class="changer-lien" id="reset-scores" style="right:auto; left:14px;">Remettre le bocal à zéro</div>
+
+<script>
+  const DB_URL = "https://compteur-couple-default-rtdb.europe-west1.firebasedatabase.app";
+  const MAX_PIECES_AFFICHEES = 90; // au-delà, le bocal garde son plus bel état de "plein"
+
+  let scores = { rose: 0, bleu: 0 };
+  let audioCtx = null;
+  let monCote = null;
+  let coupleCle = null;
+
+  function cleCouple(texte) {
+    return texte.trim().toLowerCase()
+      .replace(/[.#$\[\]\/]/g, '')
+      .replace(/\s+/g, '-');
+  }
+
+  window.onload = () => {
+    const coupleEnregistre = localStorage.getItem('compteur_couple');
+    const nomEnregistre = localStorage.getItem('compteur_nom');
+    const coteEnregistre = localStorage.getItem('compteur_cote');
+
+    if (coupleEnregistre && nomEnregistre && coteEnregistre) {
+      demarrer(nomEnregistre, coteEnregistre, coupleEnregistre);
+    } else {
+      initAccueil();
+    }
+
+    document.getElementById('changer-lien').onclick = () => {
+      localStorage.removeItem('compteur_couple');
+      localStorage.removeItem('compteur_nom');
+      localStorage.removeItem('compteur_cote');
+      location.reload();
+    };
+
+    document.getElementById('reset-scores').onclick = async () => {
+      const sur = confirm("Remettre les deux scores à zéro ? Cette action est irréversible.");
+      if (!sur) return;
+      try {
+        await fetch(`${DB_URL}/couples/${coupleCle}/scores.json`, {
+          method: 'PUT',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rose: 0, bleu: 0 })
+        });
+        loadScores();
+      } catch (e) {
+        alert("La remise à zéro a échoué, vérifie ta connexion.");
+      }
+    };
+  };
+
+  function initAccueil() {
+    const champCouple = document.getElementById('champ-couple');
+    const champNom = document.getElementById('champ-nom');
+    const btnChoixRose = document.getElementById('choix-rose');
+    const btnChoixBleu = document.getElementById('choix-bleu');
+    const erreur = document.getElementById('erreur-accueil');
+
+    const majBoutons = () => {
+      const ok = champCouple.value.trim().length > 0 && champNom.value.trim().length > 0;
+      btnChoixRose.disabled = !ok;
+      btnChoixBleu.disabled = !ok;
+    };
+    champCouple.addEventListener('input', majBoutons);
+    champNom.addEventListener('input', majBoutons);
+
+    btnChoixRose.onclick = () => rejoindre('rose');
+    btnChoixBleu.onclick = () => rejoindre('bleu');
+
+    async function rejoindre(cote) {
+      const cle = cleCouple(champCouple.value);
+      const nom = champNom.value.trim();
+      if (!cle || !nom) return;
+
+      erreur.style.display = 'none';
+      btnChoixRose.disabled = true;
+      btnChoixBleu.disabled = true;
+
+      try {
+        const resp = await fetch(`${DB_URL}/couples/${cle}/noms/${cote}.json`);
+        const occupantExistant = await resp.json();
+
+        if (occupantExistant) {
+          erreur.textContent = "Ce côté est déjà pris pour ce nom de couple. Vérifiez l'orthographe avec votre partenaire, ou choisissez un autre nom.";
+          erreur.style.display = 'block';
+          majBoutons();
+          return;
+        }
+
+        await fetch(`${DB_URL}/couples/${cle}/noms/${cote}.json`, {
+          method: 'PUT',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nom)
+        });
+
+        localStorage.setItem('compteur_couple', cle);
+        localStorage.setItem('compteur_nom', nom);
+        localStorage.setItem('compteur_cote', cote);
+
+        demarrer(nom, cote, cle);
+      } catch (e) {
+        erreur.textContent = "Connexion impossible, réessayez.";
+        erreur.style.display = 'block';
+        majBoutons();
+      }
+    }
+  }
+
+  function demarrer(nom, cote, cle) {
+    monCote = cote;
+    coupleCle = cle;
+
+    if (cote === 'rose') {
+      document.getElementById('name-rose').innerText = nom;
+    } else {
+      document.getElementById('name-bleu').innerText = nom;
+    }
+    document.getElementById('sous-titre').innerText = `Couple : ${cle}`;
+
+    document.getElementById('accueil').classList.add('cache');
+    document.getElementById('contenu-principal').classList.remove('cache');
+
+    verrouillerBoutons();
+    loadScores();
+    chargerNomsExistants();
+  }
+
+  async function chargerNomsExistants() {
+    try {
+      const resp = await fetch(`${DB_URL}/couples/${coupleCle}/noms.json`);
+      const noms = await resp.json();
+      if (noms && noms.rose) document.getElementById('name-rose').innerText = noms.rose;
+      if (noms && noms.bleu) document.getElementById('name-bleu').innerText = noms.bleu;
+    } catch (e) {}
+  }
+
+  function verrouillerBoutons() {
+    const btnRose = document.querySelector('.btn-rose');
+    const btnBleu = document.querySelector('.btn-bleu');
+
+    if (monCote === 'rose') {
+      btnBleu.disabled = true;
+      btnBleu.style.opacity = 0.35;
+      btnBleu.style.cursor = 'not-allowed';
+    } else if (monCote === 'bleu') {
+      btnRose.disabled = true;
+      btnRose.style.opacity = 0.35;
+      btnRose.style.cursor = 'not-allowed';
+    }
+  }
+
+  async function loadScores() {
+    try {
+      const response = await fetch(`${DB_URL}/couples/${coupleCle}/scores.json`);
+      const data = await response.json();
+      scores.rose = (data && data.rose) || 0;
+      scores.bleu = (data && data.bleu) || 0;
+      render();
+    } catch (e) {
+      console.error("Erreur de chargement :", e);
+    }
+  }
+
+  async function updateScore(user) {
+    if (monCote && user !== monCote) return;
+
+    scores[user] = (scores[user] || 0) + 1;
+
+    jouerSon(user);
+    render(user);
+
+    try {
+      await fetch(`${DB_URL}/couples/${coupleCle}/scores/${user}.json`, {
+        method: 'PUT',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(scores[user])
+      });
+    } catch (e) {
+      console.error("Erreur d'enregistrement :", e);
+    }
+
+    loadScores();
+  }
+
+  function render(coteAnime) {
+    document.getElementById('score-rose').innerText = scores.rose;
+    document.getElementById('score-bleu').innerText = scores.bleu;
+
+    const total = scores.rose + scores.bleu;
+    document.getElementById('total').innerText =
+      total === 0 ? "Le bocal n'attend que vous…" : `${total} pièce${total > 1 ? 's' : ''} dans le bocal`;
+
+    dessinerPieces();
+
+    if (coteAnime) {
+      const bocal = document.getElementById('bocal');
+      bocal.classList.add('rebond');
+      setTimeout(() => bocal.classList.remove('rebond'), 140);
+    }
+  }
+
+  function dessinerPieces() {
+    const couche = document.getElementById('pieces-couche');
+    couche.innerHTML = '';
+
+    const total = scores.rose + scores.bleu;
+    if (total === 0) return;
+
+    const nbAffiche = Math.min(total, MAX_PIECES_AFFICHEES);
+    const depart = total - nbAffiche;
+
+    // Répartition proportionnelle rose/bleu façon "tramage" pour un mélange homogène
+    let roseFaites = Math.round((depart) * (scores.rose / total));
+    let bleuFaites = depart - roseFaites;
+
+    const parRangee = 6;
+    const largeurZone = 110;
+    const decalageX = 10;
+
+    for (let i = 0; i < nbAffiche; i++) {
+      const indexGlobal = depart + i;
+      const ratioRoseCible = scores.rose / total;
+      const ratioRoseActuel = (roseFaites + bleuFaites) === 0 ? 0 : roseFaites / (roseFaites + bleuFaites);
+      let couleur;
+      if (roseFaites < scores.rose && (ratioRoseActuel <= ratioRoseCible || bleuFaites >= scores.bleu)) {
+        couleur = 'rose';
+        roseFaites++;
+      } else {
+        couleur = 'bleu';
+        bleuFaites++;
+      }
+
+      const rangee = Math.floor(i / parRangee);
+      const col = i % parRangee;
+      const decalageRangee = (rangee % 2) * 12;
+
+      const piece = document.createElement('div');
+      piece.className = 'piece ' + couleur;
+      piece.style.left = (decalageX + col * 18 + decalageRangee) + 'px';
+      piece.style.bottom = (4 + rangee * 15) + 'px';
+      piece.style.animationDelay = (i === nbAffiche - 1) ? '0s' : '-1s';
+      couche.appendChild(piece);
+    }
+  }
+
+  function jouerSon(user) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const base = user === 'rose' ? 880 : 660;
+
+      [0, 0.07].forEach((delai, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = base + i * 220;
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime + delai);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delai + 0.18);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + delai);
+        osc.stop(audioCtx.currentTime + delai + 0.2);
+      });
+    } catch (e) {
+      // Son non disponible, on continue sans bloquer
+    }
+  }
+
+  setInterval(() => { if (coupleCle) loadScores(); }, 5000);
+</script>
+</body>
+</html>
