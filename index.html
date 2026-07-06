@@ -206,6 +206,59 @@
     text-align:center;
   }
 
+  .accueil{
+    position:fixed;
+    inset:0;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+    padding:24px;
+    z-index:10;
+    text-align:center;
+  }
+  .accueil h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:1.4rem;
+    margin:0;
+  }
+  .accueil input{
+    font-family:'Quicksand', sans-serif;
+    font-size:1.1rem;
+    padding:12px 18px;
+    border-radius:14px;
+    border:2px solid var(--glass-edge);
+    background:white;
+    width:220px;
+    text-align:center;
+    outline:none;
+  }
+  .accueil input:focus{ border-color:var(--gold-dark); }
+
+  .choix-cote{ display:flex; gap:16px; }
+  .choix-cote button{
+    width:auto; height:auto;
+    border-radius:16px;
+    padding:14px 22px;
+    font-size:1rem;
+    box-shadow:0 4px 0 rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.1);
+  }
+  .choix-cote button:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  .changer-lien{
+    position:fixed;
+    bottom:10px; right:14px;
+    font-size:0.75rem;
+    color:var(--plum-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    z-index:5;
+  }
+
+  .cache{ display:none !important; }
+
   @media (max-width:400px){
     .scene{ gap:8px; }
     .bocal-wrap{ width:118px; }
@@ -218,6 +271,17 @@
 </style>
 </head>
 <body>
+
+  <div class="accueil" id="accueil">
+    <h2>Avant de commencer</h2>
+    <input type="text" id="champ-nom" placeholder="Ton prénom" maxlength="20">
+    <div class="choix-cote">
+      <button class="btn-rose" id="choix-rose" disabled>Côté Femme 🌸</button>
+      <button class="btn-bleu" id="choix-bleu" disabled>Côté Homme 💧</button>
+    </div>
+  </div>
+
+  <div class="cache" id="contenu-principal">
 
   <h1>Notre Bocal</h1>
   <div class="sous-titre">Chaque bouton ajoute une pièce de sa couleur</div>
@@ -247,24 +311,88 @@
 
   <div class="total" id="total">Bocal en cours de remplissage…</div>
 
+  </div>
+
+  <div class="changer-lien" id="changer-lien">Ce n'est pas moi ? Réinitialiser</div>
+
 <script>
   const DB_URL = "https://compteur-couple-default-rtdb.europe-west1.firebasedatabase.app";
   const MAX_PIECES_AFFICHEES = 90; // au-delà, le bocal garde son plus bel état de "plein"
 
   let scores = { rose: 0, bleu: 0 };
   let audioCtx = null;
+  let monCote = null; // 'rose' ou 'bleu' selon la réponse au prompt
 
   window.onload = () => {
-    const nom = prompt("Entrez votre prénom :");
-    const sexe = (prompt("Êtes-vous un HOMME ou une FEMME ?") || "").toUpperCase();
+    const nomEnregistre = localStorage.getItem('compteur_nom');
+    const coteEnregistre = localStorage.getItem('compteur_cote');
 
-    if (sexe === "FEMME") {
+    if (nomEnregistre && coteEnregistre) {
+      demarrer(nomEnregistre, coteEnregistre);
+    } else {
+      initAccueil();
+    }
+
+    document.getElementById('changer-lien').onclick = () => {
+      localStorage.removeItem('compteur_nom');
+      localStorage.removeItem('compteur_cote');
+      location.reload();
+    };
+  };
+
+  function initAccueil() {
+    const champNom = document.getElementById('champ-nom');
+    const btnChoixRose = document.getElementById('choix-rose');
+    const btnChoixBleu = document.getElementById('choix-bleu');
+
+    const majBoutons = () => {
+      const ok = champNom.value.trim().length > 0;
+      btnChoixRose.disabled = !ok;
+      btnChoixBleu.disabled = !ok;
+    };
+    champNom.addEventListener('input', majBoutons);
+
+    btnChoixRose.onclick = () => valider('rose');
+    btnChoixBleu.onclick = () => valider('bleu');
+
+    function valider(cote) {
+      const nom = champNom.value.trim();
+      if (!nom) return;
+      localStorage.setItem('compteur_nom', nom);
+      localStorage.setItem('compteur_cote', cote);
+      demarrer(nom, cote);
+    }
+  }
+
+  function demarrer(nom, cote) {
+    monCote = cote;
+    if (cote === 'rose') {
       document.getElementById('name-rose').innerText = nom;
-    } else if (sexe === "HOMME") {
+    } else {
       document.getElementById('name-bleu').innerText = nom;
     }
+
+    document.getElementById('accueil').classList.add('cache');
+    document.getElementById('contenu-principal').classList.remove('cache');
+
+    verrouillerBoutons();
     loadScores();
-  };
+  }
+
+  function verrouillerBoutons() {
+    const btnRose = document.querySelector('.btn-rose');
+    const btnBleu = document.querySelector('.btn-bleu');
+
+    if (monCote === 'rose') {
+      btnBleu.disabled = true;
+      btnBleu.style.opacity = 0.35;
+      btnBleu.style.cursor = 'not-allowed';
+    } else if (monCote === 'bleu') {
+      btnRose.disabled = true;
+      btnRose.style.opacity = 0.35;
+      btnRose.style.cursor = 'not-allowed';
+    }
+  }
 
   async function loadScores() {
     try {
@@ -279,6 +407,8 @@
   }
 
   async function updateScore(user) {
+    if (monCote && user !== monCote) return;
+
     scores[user] = (scores[user] || 0) + 1;
 
     jouerSon(user);
